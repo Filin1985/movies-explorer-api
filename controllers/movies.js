@@ -53,9 +53,9 @@ module.exports.createNewMovie = async (req, res, next) => {
 
 module.exports.deleteMovie = async (req, res, next) => {
   try {
-    const { id: movieId } = req.params;
+    const { movieId } = req.params;
     const userId = req.user._id;
-    const movie = await Movie.findById(movieId);
+    const movie = await Movie.findById({ _id: movieId });
     if (!movie) {
       throw new NotFoundError(notFoundMovieId, 'NotFoundError');
     }
