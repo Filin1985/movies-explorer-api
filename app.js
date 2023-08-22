@@ -1,5 +1,4 @@
 require('dotenv').config();
-const { celebrate, Joi } = require('celebrate');
 const express = require('express');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
@@ -13,11 +12,14 @@ const errorHandler = require('./middlewares/errorHandler');
 const { login, createNewUser, logout } = require('./controllers/users');
 const { NotFoundError } = require('./errors/NotFoundError');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
+const { signupUserValidation, signinUserValidation } = require('./utils/validation');
 
-const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/moviedb' } = process.env;
+const { MONGODB_URL } = require('./utils/config');
+
+const { PORT } = process.env;
 
 mongoose
-  .connect(DB_URL, {
+  .connect(MONGODB_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     autoIndex: true,
@@ -27,32 +29,24 @@ mongoose
 
 const app = express();
 
-app.use(requestLogger);
-app.use(express.json());
-app.use(cookieParser());
 app.use(helmet());
 app.use(limiter);
 app.use(cors);
 
-app.post('/signin', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
-  }),
-}), login);
+app.use(requestLogger);
+app.use(express.json());
+app.use(cookieParser());
 
-app.post('/signup', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
-    name: Joi.string().required().min(2).max(30),
-  }),
-}), createNewUser);
+app.post('/signin', signinUserValidation, login);
+
+app.post('/signup', signupUserValidation, createNewUser);
+
+app.use(auth);
 
 app.post('/signout', logout);
 
-app.use('/users', auth, require('./routes/users'));
-app.use('/movies', auth, require('./routes/movies'));
+app.use('/users', require('./routes/users'));
+app.use('/movies', require('./routes/movies'));
 
 app.all('*', (req, res, next) => {
   next(new NotFoundError('Page does not exist!', 'NotFoundError'));

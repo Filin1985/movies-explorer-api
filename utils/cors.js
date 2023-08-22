@@ -1,5 +1,3 @@
-module.exports.URl_VALIDATOR_REG_EXP = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/;
-
 module.exports.ALLOWED_CORS = [
   'http://my.places.nomoredomains.sbs',
   'https://my.places.nomoredomains.sbs',

@@ -1,6 +1,9 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { NotFoundError } = require('../errors/NotFoundError');
+const RESPONSE_MESSAGES = require('../utils/constants');
+
+const { notFoundUserId } = RESPONSE_MESSAGES[404].users;
 
 const User = require('../models/user');
 
@@ -26,7 +29,7 @@ module.exports.updateUserProfile = async (req, res, next) => {
     const owner = req.user._id;
     const userForUpdate = await User.findById({ _id: owner });
     if (!userForUpdate) {
-      throw new NotFoundError('This user does not exist!', 'NotFoundError');
+      throw new NotFoundError(notFoundUserId, 'NotFoundError');
     }
     const updatedUser = await User.findByIdAndUpdate(
       owner,
@@ -44,7 +47,7 @@ module.exports.getUserProfile = async (req, res, next) => {
     const ownerId = req.user._id;
     const user = await User.findById({ _id: ownerId });
     if (!user) {
-      throw new NotFoundError('This id does not exist!', 'NotFoundError');
+      throw new NotFoundError(notFoundUserId, 'NotFoundError');
     }
     res.send({ user });
   } catch (err) {
